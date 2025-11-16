@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s  # Scrape every 5 seconds
+
+scrape_configs:
+  - job_name: 'ml_model'
+    static_configs:
+      - targets: ['app:8001']

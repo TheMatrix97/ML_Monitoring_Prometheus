@@ -1,0 +1,26 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+  
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:  
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  
+  app:
+    build: .
+    ports:     
+      - "8501:8501"
+      - "8001:8001"
+
+networks:
+  default:
+    driver: bridge
+
