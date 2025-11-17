@@ -53,13 +53,13 @@ Let’s launch the Streamlit app and verify that it’s exposing the necessary m
 1. **Build the Docker image for the Streamlit app:**
 
    ```bash
-   docker build -t streamlit-sentiment-app -f ./Dockerfile.app .
+   docker build -t streamlit-sentiment-app .
    ```
 
 2. **Run the Streamlit app in a Docker container:**
 
    ```bash
-   docker run -d -p 8501:8501 streamlit-sentiment-app
+   docker run --rm -it -p 8501:8501 streamlit-sentiment-app
    ```
 
 3. **Access the app in your browser:**
@@ -84,16 +84,20 @@ start_http_server(8001)  # Metrics available at http://localhost:8001/metrics
 
 ### **2. Defining Metrics:**
 
-We define counters and gauges to track the number of requests and model accuracy.
+We define counters and histograms gauges to track the number of requests and model accuracy.
 
 ```python
-from prometheus_client import Gauge, Counter
+from prometheus_client import Histogram, Counter
 
 # Tracks the total number of prediction requests
 request_count_metric = Counter("ml_model_requests_total", "Total number of prediction requests")
 
 # Tracks user-reported model accuracy
-accuracy_metric = Gauge("ml_model_accuracy", "User-reported model accuracy")
+accuracy_feedback_metric = Histogram( "ml_model_accuracy_feedback", 
+            "Distribution of user accuracy feedback (1.0=Correct, 0.0=Incorrect)", 
+            registry=REGISTRY)
+
+confidence_metric = Histogram("ml_model_confidence", "User-reported model accuracy",['label'], registry=REGISTRY)
 ```
 
 ### **3. Updating Metrics in the App:**
@@ -107,7 +111,7 @@ if st.button("Analyze Sentiment"):
 
 # Update accuracy based on user feedback
 if feedback == "Yes":
-    accuracy_metric.set(new_accuracy_value)
+    accuracy_feedback_metric.observe(1.0)
 ```
 
 ---

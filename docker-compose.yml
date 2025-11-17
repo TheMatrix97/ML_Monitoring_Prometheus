@@ -20,6 +20,20 @@ services:
       - "8501:8501"
       - "8001:8001"
 
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: 
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+
+
 networks:
   default:
     driver: bridge
