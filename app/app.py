@@ -51,9 +51,11 @@ if "request_count_metric" not in st.session_state:
 if "accuracy_feedback_metric" not in st.session_state:
     try:
         print("Initialize accuracy metric Prometheus metric")
+        confidence_buckets = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
         st.session_state.accuracy_feedback_metric = Histogram(
             "ml_model_accuracy_feedback", 
-            "Distribution of user accuracy feedback (1.0=Correct, 0.0=Incorrect)", 
+            "Distribution of user accuracy feedback (1.0=Correct, 0.0=Incorrect)",
+            buckets=confidence_buckets,
             registry=REGISTRY
         )
     except ValueError:
@@ -64,7 +66,10 @@ if "accuracy_feedback_metric" not in st.session_state:
 if "confidence_metric" not in st.session_state:
     try:
         print("Initialize confidence metric Prometheus metric")
-        st.session_state.confidence_metric = Histogram("ml_model_confidence", "User-reported model accuracy",['label'], registry=REGISTRY)
+        confidence_buckets = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
+        st.session_state.confidence_metric = Histogram(
+            "ml_model_confidence", "Library report confidence on results",['label'], registry=REGISTRY, 
+            buckets=confidence_buckets)
     except ValueError:
         # Metric already exists, retrieve it instead
         st.session_state.confidence_metric = REGISTRY._names_to_collectors["ml_model_confidence"]
